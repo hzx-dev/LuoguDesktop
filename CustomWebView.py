@@ -10,3 +10,7 @@ class CustomWebEngineView(QWebEngineView):
         
     def createWindow(self, QWebEnginePage_WebWindowType):
         return self
+    
+    def change_create_window(self, function):
+        self.createWindow = function
+

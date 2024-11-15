@@ -21,10 +21,11 @@ class BrowserWindow(QMainWindow):
 
         # 创建一个 QWebEngineView 组件
         self.web_view = CustomWebEngineView(self)
-        self.web_view.page().setUrlRequestInterceptor(self.intercept_request)
+        # self.web_view.page().setUrlRequestInterceptor(self.intercept_request)
         self.web_view.iconChanged.connect(self.on_icon_changed)
         self.web_view.titleChanged.connect(self.setWindowTitle)
         self.web_view.urlChanged.connect(self.on_url_changed)
+        self.web_view.change_create_window(self.create_new_window)
 
         # 设置窗口标题
         self.setWindowTitle("LuoguDesktop")
@@ -45,9 +46,9 @@ class BrowserWindow(QMainWindow):
     def on_url_changed(self, url: QUrl):
         # 当页面 URL 发生变化时，更新窗口标题
         print(url)
-        # if (url.host() != "www.luogu.com.cn" and url.host() != "www.luogu.com"):
-        #     webbrowser.open(url.toString())
-        #     self.web_view.back()
+        if ("luogu.com" not in url.host()):
+            webbrowser.open(url.toString())
+            self.web_view.back()
         if (url.path() == "/auth/login"):
             self.web_view.back()
             self.do_login()
@@ -57,9 +58,10 @@ class BrowserWindow(QMainWindow):
             self.do_reg()
             self.web_view.reload()
         elif ("/problem" in url.path()):
-            problem_view = Problem.ProblemView(url.path().split('/')[-1])
-            problem_view.exec()
-                        
+            self.web_view.back()
+            self.problem_view = Problem.ProblemView(url.path().split('/')[-1])
+            self.problem_view.show()
+
     def do_login(self):
         login_window = User.LoginWindow(self)
         login_window.exec()
@@ -70,6 +72,10 @@ class BrowserWindow(QMainWindow):
     
     def intercept_request(self, info: QWebEngineUrlRequestInfo):
         print(info)
+        
+    def create_new_window(self, type):
+        self.new_window_main = BrowserWindow()
+        return self.new_window_main
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -8,17 +8,21 @@ from PySide6.QtNetwork import *
 from PySide6.QtCore import *
 
 import User
+import CustomWebView
 
-class ProblemView(QMainWindow):
+class ProblemView(QWidget):
     def __init__(self, problem_id="P0001"):
         super().__init__()
         
         self.show()
         self.setContentsMargins(0, 0, 0, 0)
         self.resize(1280, 720)
+        
+        self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(0, 0, 0, 0)
 
         # 创建一个 QWebEngineView 组件
-        self.web_view = QWebEngineView()
+        self.web_view = CustomWebView.CustomWebEngineView(self)
         self.web_view.iconChanged.connect(self.on_icon_changed)
         self.web_view.titleChanged.connect(self.setWindowTitle)
         self.web_view.urlChanged.connect(self.on_url_changed)
@@ -27,7 +31,11 @@ class ProblemView(QMainWindow):
         self.setWindowTitle("Problem View")
 
         # 将中心窗口小部件设置为主窗口的中心窗口小部件
-        self.setCentralWidget(self.web_view)
+        # self.setCentralWidget(self.web_view)
+        self.layout.addWidget(self.web_view)
+        
+        self.setLayout(self.layout)
+
         
         self.load_url(f"https://www.luogu.com.cn/problem/{problem_id}")
 
@@ -53,6 +61,9 @@ class ProblemView(QMainWindow):
             self.web_view.back()
             self.do_reg()
             self.web_view.reload()
+        # elif ("/problem" not in url.path()):
+        #     self.web_view.back()
+        #     self.close()
             
     def do_login(self):
         login_window = User.LoginWindow(self)
